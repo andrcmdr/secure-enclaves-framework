@@ -1,7 +1,7 @@
 [workspace]
 members = [
     "pipeline",
-    "cryptography",
+    "cryptography", "fingerprinting_server",
 ]
 exclude = [
 ]

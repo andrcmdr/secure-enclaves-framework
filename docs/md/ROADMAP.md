@@ -26,8 +26,3 @@
          for enclaves provisioning (EC2 or other cloud instances configuration, including NUMA, Huge Memory Pages allocation, etc.),
          enclaves building (integration with current reproducible builds system, rbuilds build system), enclaves deployment, monitoring.
          Integration with AWS SQS/MQ for deployment tasks tracking and backend systems. Integration with CI (GitHub Actions mostly).
-
-- **0.14.0** - port of framework to QEMU VM (SEV-SNP, TDX, and GPU TEE support) with EIF images support for running,
-         along with qCoW images, block devices and GPU device attestation (NVTrust), FS monitoring and attestation for qCoW images.
-
-- **0.15.0** - H100, H200 support via QEMU and NVTrust attestation.

@@ -1,9 +1,11 @@
 [workspace]
 members = [
     "pipeline",
-    "cryptography"
+    "pf-proxy",
 ]
 exclude = [
+    "cryptography",
+    "web-ra",
 ]
 # edition = "2021"
 resolver = "2"

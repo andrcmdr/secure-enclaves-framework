@@ -1,0 +1,4 @@
+/bin/bash
+-c
+--
+cd /apps/; ./pipeline listen --port 53000 >> /apps/pipeline.log 2>&1 & disown && tail -f /apps/pipeline.log

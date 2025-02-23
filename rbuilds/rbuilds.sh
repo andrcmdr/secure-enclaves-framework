@@ -23,19 +23,20 @@ declare enclave_mem='838656' # MiBs of memory allocated for Nitro Enclaves runt-
 declare enclave_cpus='64' # Number of CPUs allocated for Nitro Enclaves runt-time
 declare enclave_cid='127' # Enclave's VSock CID for SLC data connect
 
-declare question=0; # Ask a question before execution of any command
-declare local_shell=0; # Evaluate and execute local shell commands as well in current shell
-
 # Print help for commands
 
 help() {
-    echo -e "\nShell script to build custom kernel, Rust apps (SSE Framework) for eclave's run-time, init system for enclave, and to build enclave images (EIF) reproducibly.\n"
+    echo -e "\nShell script to build custom kernel, Rust apps (SSE Framework) for enclave's run-time, init system for enclave, and to build enclave images (EIF) reproducibly.\n"
     echo -e "Type 'help' to print help, 'help_ext' to print extended help, and 'help_ext_man' to print extended help with man strings.\n"
+    echo -e "Type 'help_cli' to print CLI keys/args/options/parameters help.\n"
+    echo -e "Type 'man' to print extended help & man strings.\n"
+    echo -e "Type 'info' to print exhaustive documentation.\n"
     echo -e "Type 'q' to switch on/off questions before execution of any command.\n"
     echo -e "Type 'lsh' to switch on/off local shell access, to evaluate and execute local shell commands as well in current shell.\n"
-    echo -e "\n"
+    echo -e "Type 'tty' to print the filename of the terminal connected/attached to the standard input (to this shell).\n"
+    echo -en "\n"
     echo -e "Input 'make' or 'make all' to automatically setup, build, deploy and run all stack components in unattended mode.\n"
-    echo -e "\n"
+    echo -en "\n"
     echo -e "Specific 'make' commands for step by step guided setup, build and run all components:\n"
     echo -e "Input 'make nitro' command to setup Nitro Enclaves into system.\n"
     echo -e "Input 'make kernel' command to start building custom Linux kernel.\n"
@@ -44,9 +45,97 @@ help() {
     echo -e "Input 'make eif' command to start building enclave image (EIF).\n"
     echo -e "Input 'make enclave' command to manage encalves run-time: run enclave, attach debug console to enclave, list running enclaves and terminate one or all enclaves.\n"
     echo -e "Input 'make clear' to automatically clear all Docker containers and all Docker images.\n"
-    echo -e "\n"
-    echo -e "Type 'tty' to print the filename of the terminal connected/attached to the standard input (to this shell).\n"
+    echo -en "\n"
+    echo -e "Switches for enabling EIF building with networking support and networking tools (forward and reverse port forwarding proxies).
+           \rThen build enclave image (EIF) with networking abilities (with forward and reverse port forwarding proxies).
+           \rThen run forward and reverse port forwarding proxies on a host as well, with running enclave.
+           \rType 'reverse_network' to activate reverse port forwarding proxy.
+           \rType 'forward_network' to activate forward port forwarding proxy.
+           \rType 'network' to activate both, forward and reverse port forwarding proxies.\n"
+    echo -en "\n"
     echo -e "Enter 'break' or 'exit', or push 'Ctrl+C' key sequence, for exit from this shell.\n"
+}
+
+help_cli() {
+    echo -en "
+        Print CLI keys/args/options/parameters help:
+        -? | -h | --help
+
+        Print extended help:
+        -?? | -hh | -he | --helpext | --help-ext | --help_ext
+
+        Print extended help with man messages/strings:
+        -??? | -hhh | --helpextman | --help-ext-man | --help_ext_man
+
+        Print extended help & man strings:
+        --man
+
+        Print exhaustive documentation:
+        --info
+
+        Verbose messages mode for debugging:
+        --debug | -v | --verbose
+
+        Ask a question before execution of any command:
+        --question | --questions | -q
+
+        Evaluate and execute local shell commands as well in current shell:
+        --local-shell | --local_shell | --lsh | -lsh
+
+        TTY allocation for build script IO:
+        --tty | --tty-dev | --tty_dev | --terminal | --term
+
+        Linux kernel full version:
+        --kernel | --kernel-version | --kernel_version |-k
+
+        Username for Linux kernel build:
+        --user | --kbuild-user | --kbuild_user | --kuser | -u
+
+        Hostname for Linux kernel build:
+        --host | --kbuild-host | --kbuild_host | --khost | -h
+
+        Enclave run-time memory allocation size in MiBs:
+        --memory | --mem | --ram | -m | --enclave-memory | --enclave_memory | --enclave-mem | --enclave_mem
+
+        Number of CPU cores allocation for enclave's run-time:
+        --cpus | --cpu | --cores | --cpu-cores | --cpu_cores | --enclave-cpus | --enclave_cpus
+
+        Enclave's VSock CID for SLC data connection:
+        --cid | --enclave-cid | --enclave_cid
+
+        Build EIF image from Docker container extracted rootfs, created from Docker image, formed by dockerfile scenario:
+        --dockerfile | -d
+
+        Flags for enabling EIF building with networking support and networking tools (forward and reverse port forwarding proxies).
+        Then build enclave image (EIF) with networking abilities (with forward and reverse port forwarding proxies).
+        Then run forward and reverse port forwarding proxies on a host as well, with running enclave.
+
+        Activate reverse port forwarding proxy:
+        --revnet | --rev_net | --rev-net | --rev_network | --rev-network | --reverse_net | --reverse-net | --reverse_network | --reverse-network | -rn
+
+        Activate forward port forwarding proxy:
+        --fwnet | --fw_net | --fw-net | --fw_network | --fw-network | --forward_net | --forward-net | --forward_network | --forward-network | -fn
+
+        Activate both, forward and reverse port forwarding proxies:
+        --net | --network | --networking | -n
+
+        Build EIF image with init.c as init system and run enclave from this EIF image:
+        --init-c | --init_c | --clang
+
+        Build EIF image with init.go as init system and run enclave from this EIF image:
+        --init-go | --init_go | --golang | --go
+
+        Build EIF image with init.rs as init system and run enclave from this EIF image:
+        --init-rs | --init_rs | --init-rust | --init_rust | --rust | --rs
+
+        Execute command (can be pointed multiple times for several commands execution sequentially):
+        --cmd | --command | -c
+
+        Positional parameters:
+
+        Build EIF image from Docker container extracted rootfs, created from Docker image, formed by dockerfile scenario:
+        *.dockerfile
+    "
 }
 
 help_ext() {
@@ -55,8 +144,11 @@ help_ext() {
         Print help and print extended help commands:
 
         help
+        help_cli
         help_ext
         help_ext_man
+        man
+        info
 
         Setup Nitro Enclaves into system:
 
@@ -121,11 +213,24 @@ help_ext() {
     "
 }
 
+# Ordered output of man strings/messages, in an order of its introduction & appearance in 'functions' dictrionary structure (associative array)
 help_ext_man() {
     echo -e "\nAll commands with its meaning (man strings/messages) from 'functions' dictrionary structure (associative array):\n"
     for key in "${fn_signatures[@]}"; do
         echo -e "       $key :: ${functions[$key]}\n"
     done
+}
+
+man() {
+    help_ext ;
+    help_ext_man ;
+}
+
+info() {
+    help ;
+    help_cli ;
+    help_ext ;
+    help_ext_man ;
 }
 
 # Setup Nitro Enclaves into system
@@ -150,7 +255,7 @@ install_nitro_enclaves() {
     id $USER | grep -iP --color "(docker)|(ne)"
     groups $USER | grep -iP --color "(docker)|(ne)"
 
-sudo tee /etc/nitro_enclaves/allocator.yaml << CONF
+    sudo tee /etc/nitro_enclaves/allocator.yaml << CONF
 ---
 # Enclave configuration file.
 # How much memory to allocate for enclaves (in MiB).
@@ -218,7 +323,11 @@ docker_prepare_kbuildenv() {
     # or as kernel modules, that are loaded dynamically into kernel space by kernel itself
     # docker cp ./kernel_config/artifacts_kmods/.config kernel_build_v${kversion}:/kbuilder/ ;
     # Make kernel with kernel modules loaded dynamically:
-    docker cp ./kernel_config/artifacts_kmods/.config kernel_build_v${kversion}:/kbuilder/ ;
+    if [[ ${network} -ne 0 || ${reverse_network} -ne 0 || ${forward_network} -ne 0 ]]; then
+        docker cp ./kernel_config/artifacts_kmods/.config kernel_build_v${kversion}:/kbuilder/ ;
+    else
+        docker cp ./kernel_config/kernel_wo_net/.config kernel_build_v${kversion}:/kbuilder/ ;
+    fi
     docker exec -i kernel_build_v${kversion} bash -cis -- "cp -vr /kbuilder/.config /kbuilder/linux-v${kversion}/.config" ;
 }
 
@@ -463,11 +572,39 @@ init_and_rootfs_base_images_build() {
     docker run --rm --name eif_build_toolkit --mount type=bind,src="$(pwd)"/cpio/,dst=/eif_builder/cpio/ -i -a stdin -a stdout eif-builder-al2023 bash -cis -- "cd /eif_builder/cpio/; bsdtar -vpcf init_go.cpio --fflags --acls --xattrs --format newc -C ./init_go/ . 2>&1"
     docker run --rm --name eif_build_toolkit --mount type=bind,src="$(pwd)"/cpio/,dst=/eif_builder/cpio/ -i -a stdin -a stdout eif-builder-al2023 bash -cis -- "cd /eif_builder/cpio/; bsdtar -vpcf init_go.mtree --fflags --xattrs --format=mtree --options='mtree:all,mtree:indent' @init_go.cpio 2>&1 ;"
 
-    mkdir -vp ./cpio/ ./rootfs_base/ ./rootfs_base/dev/ ./rootfs_base/proc/ ./rootfs_base/rootfs/ ./rootfs_base/sys/ ;
-    cp -vr ./rootfs_base/ ./cpio/ ;
     if [[ ${network} -ne 0 ]]; then
-        cp -vr ./rootfs_base_net/ -T ./cpio/rootfs_base/ ;
+        cp -vrf ./network.init/init_revp+tpp.sh ./network.init/init.sh ;
+    elif [[ ${reverse_network} -ne 0 ]]; then
+        cp -vrf ./network.init/init_revp.sh ./network.init/init.sh ;
+    elif [[ ${forward_network} -ne 0 ]]; then
+        cp -vrf ./network.init/init_tpp.sh ./network.init/init.sh ;
+    else
+        cp -vrf ./network.init/init_wo_net.sh ./network.init/init.sh ;
     fi
+
+    mkdir -vp ./cpio/ ./rootfs_base/ ./rootfs_base/dev/ ./rootfs_base/proc/ ./rootfs_base/rootfs/ ./rootfs_base/sys/ ;
+
+    mkdir -vp ./rootfs_base/rootfs/apps/
+    mkdir -vp ./rootfs_base/rootfs/apps/.config/
+    mkdir -vp ./rootfs_base/rootfs/apps/.logs/
+    cp -vrf ./secure-enclaves-framework/pipeline ./rootfs_base/rootfs/apps/
+    cp -vrf ./secure-enclaves-framework/.config/config.toml ./rootfs_base/rootfs/apps/.config/
+
+    if [[ ${network} -ne 0 || ${reverse_network} -ne 0 || ${forward_network} -ne 0 ]]; then
+        mkdir -vp ./rootfs_base/rootfs/apps/pf-proxy/
+        mkdir -vp ./rootfs_base/rootfs/apps/pf-proxy/.logs/
+        mkdir -vp ./rootfs_base/rootfs/apps/socat/.logs/
+        cp -vrf ./secure-enclaves-framework/ip-to-vsock-transparent ./rootfs_base/rootfs/apps/pf-proxy/ip2vs-tp
+        cp -vrf ./secure-enclaves-framework/vsock-to-ip-transparent ./rootfs_base/rootfs/apps/pf-proxy/vs2ip-tp
+        cp -vrf ./secure-enclaves-framework/vsock-to-ip ./rootfs_base/rootfs/apps/pf-proxy/vs2ip
+        cp -vrf ./network.init/pf-rev-guest.sh ./rootfs_base/rootfs/apps/
+        cp -vrf ./network.init/pf-tp-guest.sh ./rootfs_base/rootfs/apps/
+        cp -vrf ./network.init/pf-guest.sh ./rootfs_base/rootfs/apps/
+    fi
+
+    cp -vrf ./network.init/init.sh ./rootfs_base/rootfs/apps/
+
+    cp -vrf ./rootfs_base/ ./cpio/ ;
 
     docker run --rm --name eif_build_toolkit --mount type=bind,src="$(pwd)"/cpio/,dst=/eif_builder/cpio/ -i -a stdin -a stdout eif-builder-al2023 bash -cis -- "cd /eif_builder/cpio/; bsdtar -vpcf rootfs_base.cpio --fflags --acls --xattrs --format newc -C ./rootfs_base/ . 2>&1"
     docker run --rm --name eif_build_toolkit --mount type=bind,src="$(pwd)"/cpio/,dst=/eif_builder/cpio/ -i -a stdin -a stdout eif-builder-al2023 bash -cis -- "cd /eif_builder/cpio/; bsdtar -vpcf rootfs_base.mtree --fflags --xattrs --format=mtree --options='mtree:all,mtree:indent' @rootfs_base.cpio 2>&1 ;"
@@ -501,8 +638,8 @@ eif_build_with_initc() {
     /usr/bin/time -v -o ./eif/init_c_eif/eif_build.log ./eif_build --arch 'x86_64' --build-time "$(date '+%FT%T.%N%:z')" --cmdline 'reboot=k panic=30 pci=on nomodules console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on' --kernel ./kernel/bzImage --kernel_config ./kernel/bzImage.config --name 'app-builder-secure-enclaves-framework' --output ./eif/init_c_eif/app-builder-secure-enclaves-framework.eif --ramdisk ./cpio/init.cpio --ramdisk ./cpio/rootfs_ramdisk.cpio 2>&1 | tee ./eif/init_c_eif/app-builder-secure-enclaves-framework.eif.pcr; \
     /usr/bin/time -v -o ./eif/init_c_eif/describe-eif.log nitro-cli describe-eif --eif-path ./eif/init_c_eif/app-builder-secure-enclaves-framework.eif 2>&1 | tee ./eif/init_c_eif/app-builder-secure-enclaves-framework.eif.desc;"
 
-    ln -vf -rs ./eif/init_c_eif/app-builder-secure-enclaves-framework.eif ./eif/app-builder-secure-enclaves-framework.eif
-    eif_init='init_c_eif/';
+    ln -vf -rs ./eif/${eif_init}/app-builder-secure-enclaves-framework.eif ./eif/app-builder-secure-enclaves-framework.eif
+    # eif_init='init_c_eif/';
 }
 
 eif_build_with_initgo() {
@@ -512,8 +649,8 @@ eif_build_with_initgo() {
     /usr/bin/time -v -o ./eif/init_go_eif/eif_build.log ./eif_build --arch 'x86_64' --build-time "$(date '+%FT%T.%N%:z')" --cmdline 'reboot=k panic=30 pci=on nomodules console=ttyS0 i8042.noaux i8042.nomux i8042.nopnp i8042.dumbkbd random.trust_cpu=on' --kernel ./kernel/bzImage --kernel_config ./kernel/bzImage.config --name 'app-builder-secure-enclaves-framework' --output ./eif/init_go_eif/app-builder-secure-enclaves-framework.eif --ramdisk ./cpio/init_go.cpio --ramdisk ./cpio/rootfs_ramdisk.cpio 2>&1 | tee ./eif/init_go_eif/app-builder-secure-enclaves-framework.eif.pcr; \
     /usr/bin/time -v -o ./eif/init_go_eif/describe-eif.log nitro-cli describe-eif --eif-path ./eif/init_go_eif/app-builder-secure-enclaves-framework.eif 2>&1 | tee ./eif/init_go_eif/app-builder-secure-enclaves-framework.eif.desc;"
 
-    ln -vf -rs ./eif/init_go_eif/app-builder-secure-enclaves-framework.eif ./eif/app-builder-secure-enclaves-framework.eif
-    eif_init='init_go_eif/';
+    ln -vf -rs ./eif/${eif_init}/app-builder-secure-enclaves-framework.eif ./eif/app-builder-secure-enclaves-framework.eif
+    # eif_init='init_go_eif/';
 }
 
 # Enclave run-time management commands:
@@ -522,30 +659,63 @@ eif_build_with_initgo() {
 run_eif_image_debugmode_cli() {
     if [[ ${network} -ne 0 ]]; then
         cd ./network.init/;
-        bash ./pf-host.sh 2>&1 & disown
-        bash ./pf-tp-host.sh 2>&1 & disown
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${reverse_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${forward_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
         cd ../ ;
     fi
+
     /usr/bin/time -v -o ./eif/run-enclave.log nitro-cli run-enclave --cpu-count $enclave_cpus --memory $enclave_mem --eif-path ./eif/${eif_init}app-builder-secure-enclaves-framework.eif --debug-mode --attach-console --enclave-cid $enclave_cid --enclave-name app_builder_secure_enclaves_framework_toolkit 2>&1 | tee ./eif/app-builder-secure-enclaves-framework.output
 }
 
 run_eif_image_debugmode() {
     if [[ ${network} -ne 0 ]]; then
         cd ./network.init/;
-        bash ./pf-host.sh 2>&1 & disown
-        bash ./pf-tp-host.sh 2>&1 & disown
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${reverse_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${forward_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
         cd ../ ;
     fi
+
     /usr/bin/time -v -o ./eif/run-enclave.log nitro-cli run-enclave --cpu-count $enclave_cpus --memory $enclave_mem --eif-path ./eif/${eif_init}app-builder-secure-enclaves-framework.eif --debug-mode --enclave-cid $enclave_cid --enclave-name app_builder_secure_enclaves_framework_toolkit 2>&1 | tee ./eif/app-builder-secure-enclaves-framework.output
 }
 
 run_eif_image() {
     if [[ ${network} -ne 0 ]]; then
         cd ./network.init/;
-        bash ./pf-host.sh 2>&1 & disown
-        bash ./pf-tp-host.sh 2>&1 & disown
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${reverse_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-rev-host.sh &> /dev/null & disown ; wait
+        cd ../ ;
+    elif [[ ${forward_network} -ne 0 ]]; then
+        cd ./network.init/;
+        nohup bash ./pf-tp-host.sh &> /dev/null & disown ; wait
+        nohup bash ./pf-host.sh &> /dev/null & disown ; wait
         cd ../ ;
     fi
+
     /usr/bin/time -v -o ./eif/run-enclave.log nitro-cli run-enclave --cpu-count $enclave_cpus --memory $enclave_mem --eif-path ./eif/${eif_init}app-builder-secure-enclaves-framework.eif --enclave-cid $enclave_cid --enclave-name app_builder_secure_enclaves_framework_toolkit 2>&1 | tee ./eif/app-builder-secure-enclaves-framework.output
 }
 
@@ -797,11 +967,11 @@ declare -ra fn_signatures=(
     # Help commands
 
     "help"
-    "help_success"
+    "help_cli"
     "help_ext"
-    "help_ext_success"
     "help_ext_man"
-    "help_ext_man_success"
+    "man"
+    "info"
 
     # Setup Nitro Enclaves into system
 
@@ -906,11 +1076,13 @@ declare -rA functions=(
     # Help commands
 
     ["help"]="Print help"
-    ["help_success"]="\nFunction successfully executed!\n"
+    ["help_cli"]="Print CLI keys/args/options/parameters help"
     ["help_ext"]="Print extended help"
-    ["help_ext_success"]="\nFunction successfully executed!\n"
     ["help_ext_man"]="Print extended help with man strings"
-    ["help_ext_man_success"]="\nFunction successfully executed!\n"
+    ["man"]="Print extended help & man strings"
+    ["man_success"]="\nFunctions successfully executed!\n"
+    ["info"]="Print exhaustive documentation"
+    ["info_success"]="\nFunctions successfully executed!\n"
 
     # Setup Nitro Enclaves into system
 
@@ -1016,7 +1188,7 @@ runner_fn() {
 
     # Verbose messages mode for debugging of commands runner for functions
     if [[ ${debug} -ne 0 ]]; then
-        echo -e "\n"
+        echo -en "\n"
         echo -e "Function name to call: ${1}\n"
         echo -e "Current function signature/name length: ${#1}\n"
         echo -e "Command to call: ${@}\n"
@@ -1034,7 +1206,7 @@ runner_fn() {
         if [[ question -eq 1 ]]; then
             read -n 1 -s -p "${functions[$1]}? [y|n] :" choice
             if [[ $choice == "y" ]]; then
-                echo -e "\n"
+                echo -en "\n"
                 # [[ ${tty_dev} -ne 0  ]] && eval "${@}" >&3 2>&3 ; wait || eval "${@}" ; wait
                 if [[ ${tty_dev} -ne 0 ]]; then
                     eval "${@}" >&3 2>&3 ; wait
@@ -1043,7 +1215,7 @@ runner_fn() {
                 fi
                 echo -e "${functions["$1_success"]}"
             else
-                echo -e "\n"
+                echo -en "\n"
             fi
         else
             echo -e "${functions[$1]} :\n"
@@ -1054,7 +1226,7 @@ runner_fn() {
                 eval "${@}" ; wait
             fi
             echo -e "${functions["$1_success"]}"
-            echo -e "\n"
+            echo -en "\n"
         fi
     elif [[ local_shell -eq 1 ]]; then
         if [[ question -eq 1 ]]; then
@@ -1063,7 +1235,7 @@ runner_fn() {
             fi
             read -n 1 -s -p "Execute command '${*}' in local shell unsafe mode? [y|n] :" choice
             if [[ $choice == "y" ]]; then
-                echo -e "\n"
+                echo -en "\n"
                 # [[ ${tty_dev} -ne 0  ]] && eval "${@}" >&3 2>&3 ; wait || eval "${@}" ; wait
                 if [[ ${tty_dev} -ne 0 ]]; then
                     eval "${@}" >&3 2>&3 ; wait
@@ -1072,7 +1244,7 @@ runner_fn() {
                 fi
                 echo -e "${functions["$1_success"]}"
             else
-                echo -e "\n"
+                echo -en "\n"
             fi
         else
             if [[ ${#functions[$1]} -ne 0 ]]; then
@@ -1086,10 +1258,37 @@ runner_fn() {
                 eval "${@}" ; wait
             fi
             echo -e "${functions["$1_success"]}"
-            echo -e "\n"
+            echo -en "\n"
         fi
     else
         return 0
+    fi
+}
+
+# TTY device allocation for IO
+tty_dev_alloc() {
+    if [[ ${tty_dev} -ne 0 ]]; then
+        # Define the TTY device (adjust it as needed)
+        # declare TTY_DEVICE="/dev/pts/0"
+        declare TTY_DEVICE="/dev/tty"
+
+        # Ensure script is running with a TTY
+        if [ ! -t 0 ]; then
+            exec < "$TTY_DEVICE"
+        fi
+        if [ ! -t 1 ]; then
+            exec > "$TTY_DEVICE"
+        fi
+        if [ ! -t 2 ]; then
+            exec 2> "$TTY_DEVICE"
+        fi
+
+        # Open the TTY device for reading and writing
+        exec 3<> "$TTY_DEVICE"
+
+        # Set the TTY device as the script's input/output
+        exec <&3
+        exec >&3
     fi
 }
 
@@ -1111,14 +1310,26 @@ fi
 
 # Dockerfile to build Docker container image, create container and extract rootfs to build initrd initramfs ramdisk for EIF image
 declare dockerfile="";
-# Flag for marking dockerfile with networking support and networking tools.
+
+# Flag for marking dockerfile building with networking support and networking tools.
 # Then build enclave image (EIF) with networking abilities (with forward and reverse port forwarding proxies).
+# Then run forward and reverse port forwarding proxies on a host as well, with running enclave.
+# Activate reverse port forwarding proxy
+declare reverse_network=0;
+# Activate forward port forwarding proxy
+declare forward_network=0;
+# Activate both, forward and reverse port forwarding proxies
 declare network=0;
+
 # Subdirectory with EIF image built with particular 'init' system (written in C, Go, Rust)
 declare eif_init='init_c_eif/';
 
 # Verbose messages mode for debugging
 declare debug=0;
+# Ask a question before execution of any command
+declare question=0;
+# Evaluate and execute local shell commands as well in current shell
+declare local_shell=0;
 # Should exit after command execution through CLI argument
 declare should_exit=0;
 # TTY allocation for build script IO
@@ -1129,6 +1340,8 @@ declare tty_dev=0;
 # Declare an associative array for options and a regular indexed array for positional arguments
 declare -A args=()
 declare -a posargs=()
+# Indexed array mask for CLI keys/options handling in args dictionary (associative array) with precedence, 'cause order of CLI parameters/keys/args/values are makes sense
+declare -a args_appearance_ordered_array_index_mask=()
 
 # Variable to track the current option being processed
 declare prev_arg=""
@@ -1139,14 +1352,16 @@ for arg in "$@"; do
         if [[ -n "$prev_arg" ]]; then
             args["$prev_arg"]=1 # Flag presense value
         fi
-        prev_arg="$arg"
+        prev_arg="$arg" # Assign arg as predecessing option to next value or another next arg/option, i.e. make previous arg/option context
+        args_appearance_ordered_array_index_mask+=("$arg") # Ordering dictionary (associative array) with indexed array mask
     else
         # If we were expecting an option value
         if [[ -n "$prev_arg" ]]; then
+            # Assign value to option key, arg in this case is a value to previous parsed arg (beginning with '--' or '-')
             args["$prev_arg"]="$arg"
-            prev_arg=""
+            prev_arg="" # Previous parsed option has a value, which successfully parsed, thus clear previous arg/option context
         else
-            # This is a positional argument
+            # If there's no previous arg/option - this is a positional argument
             posargs+=("$arg")
         fi
     fi
@@ -1163,27 +1378,39 @@ if [[ ${args["--debug"]} -eq 1 || ${args["--verbose"]} -eq 1 || ${args["-v"]} -e
     for key in "${!args[@]}"; do
         echo -e "  $key = ${args[$key]}"
     done
+    echo -e "Parsed options in an order of its appearance:"
+    for key in "${args_appearance_ordered_array_index_mask[@]}"; do
+        echo -e "  $key = ${args[$key]}"
+    done
     echo -e "\nPositional arguments:"
     printf "  '%s'\n" "${posargs[@]}"
 fi
 
 # Override default variables values, provide dockerfile, execute commands
-for key in "${!args[@]}"; do
+for key in "${args_appearance_ordered_array_index_mask[@]}"; do
     if [[ ${args["--debug"]} -eq 1 || ${args["--verbose"]} -eq 1 || ${args["-v"]} -eq 1 ]]; then
         echo -e "\nArg:\n$key = ${args[$key]}\n"
     fi
 
     case "$key" in
-        "-?" | "-h" | "--help") # Print help
-            runner_fn help
+        "-?" | "-h" | "--help") # Print CLI keys/args/options/parameters help
+            runner_fn help_cli
             exit 0
             ;;
         "-??" | "-hh" | "-he" | "--helpext" | "--help-ext" | "--help_ext") # Print extended help
             runner_fn help_ext
             exit 0
             ;;
-        "--man" | "-???" | "-hhh" | "--helpextman" | "--help-ext-man" | "--help_ext_man") # Print extended help with man messages/strings
+        "-???" | "-hhh" | "--helpextman" | "--help-ext-man" | "--help_ext_man") # Print extended help with man messages/strings
             runner_fn help_ext_man
+            exit 0
+            ;;
+        "--man") # Print extended help & man strings
+            runner_fn man
+            exit 0
+            ;;
+        "--info") # Print exhaustive documentation
+            runner_fn info
             exit 0
             ;;
         "--debug" | "-v" | "--verbose") # Verbose messages mode for debugging
@@ -1197,6 +1424,7 @@ for key in "${!args[@]}"; do
             ;;
         "--tty" | "--tty-dev" | "--tty_dev" | "--terminal" | "--term") # TTY allocation for build script IO
             tty_dev=1
+            tty_dev_alloc
             ;;
         "--kernel" | "--kernel-version" | "--kernel_version" |"-k") # Linux kernel full version
             if [[ -n "${args[$key]}" ]]; then
@@ -1255,8 +1483,18 @@ for key in "${!args[@]}"; do
                 echo -e "Dockerfile name and path should be provided along with the '--dockerfile|-d' argument\n"
             fi
             ;;
-        # Flag for marking dockerfile with networking support and networking tools.
+        # Flags for enabling EIF building with networking support and networking tools (forward and reverse port forwarding proxies).
         # Then build enclave image (EIF) with networking abilities (with forward and reverse port forwarding proxies).
+        # Then run forward and reverse port forwarding proxies on a host as well, with running enclave.
+        # Activate reverse port forwarding proxy
+        "--revnet" | "--rev_net" | "--rev-net" | "--rev_network" | "--rev-network" | "--reverse_net" | "--reverse-net" | "--reverse_network" | "--reverse-network" | "-rn")
+            reverse_network=1
+            ;;
+        # Activate forward port forwarding proxy
+        "--fwnet" | "--fw_net" | "--fw-net" | "--fw_network" | "--fw-network" | "--forward_net" | "--forward-net" | "--forward_network" | "--forward-network" | "-fn")
+            forward_network=1
+            ;;
+        # Activate both, forward and reverse port forwarding proxies
         "--net" | "--network" | "--networking" | "-n")
             network=1
             ;;
@@ -1302,31 +1540,6 @@ for key in "${!posargs[@]}"; do
             ;;
     esac
 done
-
-# TTY device allocation for IO
-if [[ ${tty_dev} -ne 0 ]]; then
-    # Define the TTY device (adjust it as needed)
-    # declare TTY_DEVICE="/dev/pts/0"
-    declare TTY_DEVICE="/dev/tty"
-
-    # Ensure script is running with a TTY
-    if [ ! -t 0 ]; then
-        exec < "$TTY_DEVICE"
-    fi
-    if [ ! -t 1 ]; then
-        exec > "$TTY_DEVICE"
-    fi
-    if [ ! -t 2 ]; then
-        exec 2> "$TTY_DEVICE"
-    fi
-
-    # Open the TTY device for reading and writing
-    exec 3<> "$TTY_DEVICE"
-
-    # Set the TTY device as the script's input/output
-    exec <&3
-    exec >&3
-fi
 
 if [[ ${should_exit} -ne 0 ]]; then
     exit 0
@@ -1375,8 +1588,27 @@ while true; do
         continue
     fi
 
-    # Trigger for marking dockerfile with networking support and networking tools.
+    # Switches for enabling EIF building with networking support and networking tools (forward and reverse port forwarding proxies).
     # Then build enclave image (EIF) with networking abilities (with forward and reverse port forwarding proxies).
+    # Then run forward and reverse port forwarding proxies on a host as well, with running enclave.
+
+    # Activate reverse port forwarding proxy
+    if [[ $cmd == "reverse_network" ]]; then
+        # reverse_network=$(( ! $reverse_network ))
+        reverse_network=$(( 1 - $reverse_network ))
+        echo "reverse_network == $reverse_network"
+        continue
+    fi
+
+    # Activate forward port forwarding proxy
+    if [[ $cmd == "forward_network" ]]; then
+        # forward_network=$(( ! $forward_network ))
+        forward_network=$(( 1 - $forward_network ))
+        echo "forward_network == $forward_network"
+        continue
+    fi
+
+    # Activate both, forward and reverse port forwarding proxies
     if [[ $cmd == "network" ]]; then
         # network=$(( ! $network ))
         network=$(( 1 - $network ))

@@ -1,6 +1,6 @@
 # A Quickstart guide on getting started with Sentient's Enclave Framework 🚀
 
-We will focus on setting up the framework for running apps distributed in [reference apps](../reference_apps/) directory. We provide [`rbuilds.sh`](../rbuilds/rbuilds.sh) to simplify setting up applications for running them inside enclaves. The following steps utilize the same script for set-up. Issue the following commands in [`rbuilds`](../rbuilds) directory.
+We will focus on setting up the framework for running apps distributed in [reference apps](../../reference_apps/) directory. We provide [`rbuilds.sh`](../../rbuilds/rbuilds.sh) to simplify setting up applications for running them inside enclaves. The following steps utilize the same script for set-up. Issue the following commands in [`rbuilds`](../../rbuilds) directory.
 > [!IMPORTANT]
 > The setup steps currently address setting up enclaves on **Amazon Linux 2023** only. For other distributions, the steps might vary. 
 
@@ -71,7 +71,7 @@ sudo ./rbuilds.sh --tty --debug --dockerfile ./pipeline-slc-network-al2023.docke
 ```
 
 ## Running the applications 🚀
-This setup is now ready to run the applications inside the enclave. To run applications inside the enclave, check out the [reference apps](../reference_apps/) directory. Follow the steps specified in the `TEE_rbuilds_setup.md` file in the directory of the application of interest.
+This setup is now ready to run the applications inside the enclave. To run applications inside the enclave, check out the [reference apps](../../reference_apps/) directory. Follow the steps specified in the `TEE_rbuilds_setup.md` file in the directory of the application of interest.
 
 ## Notes 🗒️
 1. When NUMA support is enabled, the maximum number of vCPUs and amount of memory that can be allocated to an enclave is [limited by the node it gets created on](https://github.com/aws/aws-nitro-enclaves-cli/issues/263). In cases where more resources are needed, NUMA support should be disabled.
